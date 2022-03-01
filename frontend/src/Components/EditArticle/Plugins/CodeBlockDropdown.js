@@ -28,9 +28,10 @@ const CodeBlockDropdown = props => {
     {showDropdown && (
       <div className="codeblock-dropdown-container">
         <p onClick={() => handleCodeSelect("~~~js\n\n~~~")}>JS</p>
-        <p>Java</p>
-        <p>Python</p>
-        <p>C#</p>
+        <p onClick={() => handleCodeSelect("~~~java\n\n~~~")}>Java</p>
+        <p onClick={() => handleCodeSelect("~~~python\n\n~~~")}>Python</p>
+        <p onClick={() => handleCodeSelect("~~~csharp\n\n~~~")}>C#</p>
+        <p onClick={() => handleCodeSelect("~~~ruby\n\n~~~")}>Ruby</p>
       </div>
     )}
     </div>

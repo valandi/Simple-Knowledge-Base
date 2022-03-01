@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import "./search.css";
 import {
     fetchCategories,
 } from '../../Redux/categoriesSlice';
@@ -7,21 +8,17 @@ import {
     fetchTags,
 } from "../../Redux/tagsSlice";
 import {
-    addArticle,
-    deleteArticle,
-    editArticle,
     searchArticles,
     updateSearchQuery,
     clearSearchQuery,
+    toggleShowResults
 } from '../../Redux/articlesSlice';
 import SearchResults from "../../Components/SearchResults/searchResults";
 import SingleValueSelector from "../../Components/SingleValueSelector/singleValueSelector";
 import MultiValueSelector from "../../Components/MultiValueSelector/multiValueSelector";
 
 function Search() {
-    const [allTags, setAllTags] = useState([]); 
-    const [query, setQuery] = useState({tags: [], category: {name: ""}, text: ""});
-    const [showResults, setShowResults] = useState(false);
+    const showResults = useSelector((state) => state.articles.showResults);
     const searchResults = useSelector((state) => state.articles.articleSearchResults)
     const searchQuery = useSelector((state) => state.articles.searchQuery)
     const categories = useSelector((state) => state.categories.values)
@@ -53,13 +50,21 @@ function Search() {
 
     const handleSearchArticles = () => {
         dispatch(searchArticles(searchQuery));
-        setShowResults(true);
+        dispatch(toggleShowResults(true));
+    }
+
+    const handleToggleShowResults = (value) => {
+        dispatch(toggleShowResults(value));
+    }
+
+    const handleRefresh = () => {
+        dispatch(searchArticles(searchQuery));
     }
 
     return (
-        <div>
+        <div className="search-container">
         {!showResults && (
-            <div>
+            <div className="query">
                 <div>
                     <label>Contains Text: </label>
                     <input value={searchQuery.text} onChange={(e) => handleTextChange(e.target.value)}/>
@@ -78,17 +83,19 @@ function Search() {
                     onValueChange={handleTagChange}
                     initialValue={searchQuery.tags}
                 ></MultiValueSelector>
-                <button onClick={() => handleSearchArticles()}>Search</button>
-                <button onClick={() => dispatch(clearSearchQuery())}>Clear</button>
+                <div style={{textAlign: "center"}}>
+                    <button className="secondary-button" onClick={() => dispatch(clearSearchQuery())}>Clear</button>
+                    <button className="main-button" onClick={() => handleSearchArticles()}>Search</button>
+                </div>
             </div>
         )}
         {showResults && (
             <div>
-                {console.log(searchResults)}
                 <SearchResults
                     searchResults={searchResults}
                 ></SearchResults>
-                <button onClick={() => setShowResults(false)}>Back</button>
+                <button className="secondary-button" onClick={() => handleToggleShowResults(false)}>Back</button>
+                <button className="main-button" onClick={() => handleRefresh()}>Refresh Results</button>
             </div>
         )}
         </div>

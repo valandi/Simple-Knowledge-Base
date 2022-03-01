@@ -11,3 +11,58 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:root {
+  --main-color: #0aa89a;
+  --accent-gray: #dedede;
+  --dark-gray: #394F49;
+  --accent-color: #F26419;
+  --accent-two: #4464AD;
+  --error-msg: #AB4E68;
+}
+
+input {
+  border: none;
+  border-bottom-color: currentcolor;
+  border-bottom-style: none;
+  border-bottom-width: medium;
+  border-bottom: 1px solid var(--main-color);
+}
+
+input:focus {
+  outline: none;
+}
+
+.main-button {
+  border: none;
+  font-size: 18px;
+  background-color: var(--main-color);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 3px #888;
+  margin: 5px;
+  box-sizing: border-box;
+  border: 2px solid var(--main-color);
+}
+
+.secondary-button {
+  border: none;
+  font-size: 18px;
+  border: 2px solid var(--main-color);
+  background-color: white;
+  color: var(--main-color);
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 3px #888;
+  box-sizing: border-box;
+  margin: 5px;
+}
+
+.main-button:active .secondary-button:active {
+  box-shadow: none;
+}
+
+button:hover {
+  cursor: pointer;
+}

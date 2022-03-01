@@ -10,6 +10,7 @@ import {
 const initialState = { 
     status: 'idle',
     articleSearchResults: [],
+    showResults: false,
     searchQuery: {text: ""},
     viewingArticle: {},
     newArticle: {},
@@ -66,6 +67,9 @@ const articleSlice = createSlice({
         },
         updateNewArticle: (state, action) => {
             state.newArticle = action.payload;
+        },
+        toggleShowResults: (state, action) => {
+            state.showResults = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -89,5 +93,5 @@ const articleSlice = createSlice({
     }
 })
 
-export const { updateSearchQuery, clearSearchQuery, updateNewArticle } = articleSlice.actions
+export const { updateSearchQuery, clearSearchQuery, updateNewArticle, toggleShowResults } = articleSlice.actions
 export default articleSlice.reducer 

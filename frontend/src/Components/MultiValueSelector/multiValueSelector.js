@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./multiValueSelector.css"
 
 export default function MultiValueSelector(props) {
     const [currentValues, setCurrentValues] = useState([]);
@@ -23,7 +24,6 @@ export default function MultiValueSelector(props) {
         let temp = [...currentValues];
         if (currentValues.findIndex((value) => value[props.displayField] == addedValue[props.displayField]) >= 0) return;
         temp.push(addedValue);
-        console.log(temp);
         setCurrentValues(temp);
         props.onValueChange(temp);
     }
@@ -40,17 +40,17 @@ export default function MultiValueSelector(props) {
     }
 
     return (
-        <div>
-            <label>{props.label}</label>
+        <div className="multi-selector-container">
+            <label>{props.label}: </label>
             <select value="" onChange={(e) => handleAdd(e.target.value)}>
                 <option value=""></option>
                 {props.options && props.options.map((option, index) => {
                     return <option key={index} value={index}>{option[props.displayField]}</option>
                 })}
             </select>
-            <div>
+            <div className="selected-options">
                 {currentValues && currentValues.map((value, index) => {
-                    return <span key={index}>{value[props.displayField]} <button onClick={() => handleDelete(index)}>X</button></span>
+                    return <span key={index}>{value[props.displayField]} <button onClick={() => handleDelete(index)}> x </button></span>
                 })}
             </div>
         </div>

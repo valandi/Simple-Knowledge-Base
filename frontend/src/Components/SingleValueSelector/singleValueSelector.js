@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import "./singleValueSelector.css";
 // return one selected value onChange
 
 export default function SingleValueSelector(props) {
@@ -29,8 +29,8 @@ export default function SingleValueSelector(props) {
     }
 
     return (
-        <div style={{margin: "20px 0px"}}>
-            <label>{props.label}</label>
+        <div className="single-selector-container">
+            <label>{props.label}: </label>
             <select value={currentValue} onChange={(e) => handleSelection(e.target.value)}>
                 <option value=""></option>
                 {props.options && props.options.map((option, index) => {

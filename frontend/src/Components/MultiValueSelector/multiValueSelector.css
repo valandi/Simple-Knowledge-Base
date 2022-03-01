@@ -1,0 +1,30 @@
+.multi-selector-container {
+    margin: 20px 0px;
+}
+
+.multi-selector-container label {
+    margin-right: 20px;
+}
+
+.multi-selector-container span {
+    color: white;
+    background-color: var(--main-color);
+    padding: 5px 5px;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 5px;
+    font-size: 15px;
+}
+
+.multi-selector-container span button {
+    font-size: 10px;
+    background-color: white;
+    vertical-align: middle;
+    border:none;
+    border-radius: 20px;
+    padding: 2px 5px;
+}
+
+.multi-selector-container .selected-options {
+    margin-top: 20px;
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../ManageTags/manageTags.css";
 
 function ManageCategories(props) {
     const [newCategoryName, setNewCategory] = useState("");
@@ -34,25 +35,29 @@ function ManageCategories(props) {
     }
 
     return (
-        <div>
-            <input value={newCategoryName} placeholder="Create New Category" onChange={(e) => setNewCategory(e.target.value)}/>
-            <button onClick={handleSave}>Save New Category</button>
-            {props.categories && props.categories.map((category, index) => {
-                return (
-                    <div key={category._id}>
-                        {index != editingIndex && <p>{category.name}</p>}
-                        {index == editingIndex && (
+        <div className="manage-items-container">
+            <input className="create-new" value={newCategoryName} placeholder="Create New Category" onChange={(e) => setNewCategory(e.target.value)}/>
+            <button className="main-button" onClick={handleSave}>Save</button>
+            <div className="options-container">
+                {props.categories && props.categories.map((category, index) => {
+                    return (
+                        <div key={category._id} className="option">
+                            {index != editingIndex && <label>{category.name}</label>}
+                            {index == editingIndex && (
+                                <div>
+                                    <input value={editingValue} onChange={(e) => setEditingValue(e.target.value)}/>
+                                    <button onClick={handleSaveEdits}>Save Edits</button>
+                                    <button onClick={() => {setEditingIndex(undefined); setEditingValue(undefined)}}>Cancel</button>
+                                </div>
+                            )}
                             <div>
-                                <input value={editingValue} onChange={(e) => setEditingValue(e.target.value)}/>
-                                <button onClick={handleSaveEdits}>Save Edits</button>
-                                <button onClick={() => {setEditingIndex(undefined); setEditingValue(undefined)}}>Cancel</button>
+                                {index != editingIndex && <button onClick={() => handleEditClick(category.name, index)}>Edit</button>}
+                                {index != editingIndex && <button onClick={() => handleDelete(category._id, index)}>Delete</button>}
                             </div>
-                        )}
-                        {index != editingIndex && <button onClick={() => handleEditClick(category.name, index)}>Edit</button>}
-                        {index != editingIndex && <button onClick={() => handleDelete(category._id, index)}>Delete</button>}
-                    </div>
-                )
-            })}
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     );
 }

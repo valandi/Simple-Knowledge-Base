@@ -16,9 +16,13 @@ export const fetchCategories = createAsyncThunk(
 
 export const addCategory = createAsyncThunk(
     'categories/addCategory',
-    async (category) => {
-        const response = await addCategoryAsync(category);
-        return response.data;
+    async (category, thunkApi) => {
+        try {
+            const response = await addCategoryAsync(category);
+            return response.data;
+        } catch(e) {
+            return thunkApi.rejectWithValue(e);
+        }
     }
 )
 
@@ -50,7 +54,6 @@ const categorySlice = createSlice({
         .addCase(addCategory.fulfilled, (state, action) => {
             state.status = 'idle';
             let newCategory = action.payload;
-            console.log(action);
             state.values = [...state.values, newCategory];
         })
         .addCase(deleteCategory.fulfilled, (state, action) => {

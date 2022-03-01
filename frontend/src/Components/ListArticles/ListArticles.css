@@ -1,0 +1,32 @@
+.list-articles-table {
+    text-align: left;
+    width: 100%;
+}
+
+.list-articles-table th {
+    padding: 5px;
+    background-color: var(--main-color);
+    color: white;
+}
+
+.list-articles-table td {
+    padding: 5px 15px;
+}
+
+.list-articles-table .dark {
+    background-color: #ddd;
+}
+
+.list-articles-table a:visited {
+    color: black;
+}
+
+.list-articles-table a:hover {
+    color: #888;
+}
+
+.list-articles-table a {
+    color: black;
+    width: 100%;
+    display: inline-block;
+}

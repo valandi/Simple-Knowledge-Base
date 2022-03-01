@@ -1,6 +1,6 @@
 import Editor, { Plugins } from 'react-markdown-editor-lite';
+import "./editArticle.css";
 import 'react-markdown-editor-lite/lib/index.css';
-import React, { useState, useEffect } from 'react';
 import CodeBlockDropdown from './Plugins/CodeBlockDropdown';
 import MarkdownViewer from '../MarkdownViewer/MarkdownViewer';
 import SingleValueSelector from '../SingleValueSelector/singleValueSelector';
@@ -31,29 +31,39 @@ function EditArticle(props) {
 
     return (
         <div>
-            <label>Title:</label>
-            <input value={props.article.title} type="text" placeholder="title" onChange={(e) => handleChange(e.target.value, 'title')}/>
-            <SingleValueSelector
-                options={props.categories}
-                label="Select Category"
-                displayField="name"
-                onValueChange={(category) => handleChange(category, 'category')}
-                initialValue={props.article.category}
-            ></SingleValueSelector>
-            <MultiValueSelector
-                options={props.tags}
-                label="Select Tags"
-                displayField="name"
-                initialValue={props.article.tags}
-                onValueChange={(tags) => handleChange(tags, 'tags')}
-            ></MultiValueSelector>
+            <div className='edit-title-container'>
+                <input value={props.article.title} type="text" placeholder="Title" onChange={(e) => handleChange(e.target.value, 'title')}/>
+            </div>
+            <div className='edit-category-container'>
+                <SingleValueSelector
+                    options={props.categories}
+                    label="Select Category"
+                    displayField="name"
+                    onValueChange={(category) => handleChange(category, 'category')}
+                    initialValue={props.article.category}
+                ></SingleValueSelector>
+            </div>
+            <div className='edit-tags-container'>
+                <MultiValueSelector
+                    options={props.tags}
+                    label="Select Tags"
+                    displayField="name"
+                    initialValue={props.article.tags}
+                    onValueChange={(tags) => handleChange(tags, 'tags')}
+                ></MultiValueSelector>
+            </div>
+            
             <Editor
                 value={props.article.markdown}
                 style={{ height: '500px' }}
                 onChange={({html, text}) => handleChange(text, 'markdown')} 
                 renderHTML={(text) => <MarkdownViewer markdown={text} />}
             />
-            <button onClick={() => onSave()}>Save</button>
+            <div style={{marginTop: "20px", textAlign: "center"}}>
+                {props.onCancel && <button className="secondary-button" onClick={props.onCancel}>Cancel</button>  }
+                <button className="main-button" onClick={() => onSave()}>Save</button>  
+            </div>
+            
         </div>
     );
 }

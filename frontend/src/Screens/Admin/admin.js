@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ManageCategories from "../../Components/ManageCategories/manageCategories";
 import ManageTags from "../../Components/ManageTags/manageTags";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,8 +14,10 @@ import {
     editTag,
     deleteTag
 } from "../../Redux/tagsSlice";
+import "./admin.css"
 
 function Admin() {
+    const [currentTab, setCurrentTab] = useState("tags");
     const categories = useSelector((state) => state.categories.values)
     const tags = useSelector((state) => state.tags.values)
     const dispatch = useDispatch()
@@ -51,21 +53,27 @@ function Admin() {
 
     return (
         
-        <div>
-            {console.log(tags)}
-            <ManageTags
-                tags={tags}
-                addTag={handleAddTag}
-                deleteTag={handleDeleteTag}
-                editTag={handleEditTag}
-            ></ManageTags>
-            <div style={{width: "100%", borderBottom: "3px solid black", margin: "20px 0px"}}></div>
-            <ManageCategories
-                categories={categories}
-                addCategory={handleAddCategory}
-                deleteCategory={handleDeleteCategory}
-                editCategory={handleEditCategory}
-            ></ManageCategories>
+        <div className="admin-container">
+            <div className="admin-subnav">
+                <button className={currentTab == 'tags' ? "selected" : ""} onClick={() => setCurrentTab('tags')}>Manage Tags</button>
+                <button className={currentTab == 'categories' ? "selected" : ""}onClick={() => setCurrentTab('categories')}>Manage Categories</button>
+            </div>
+            {currentTab == 'tags' && (
+                <ManageTags
+                    tags={tags}
+                    addTag={handleAddTag}
+                    deleteTag={handleDeleteTag}
+                    editTag={handleEditTag}
+                ></ManageTags>
+            )}
+            {currentTab == 'categories' && (
+                <ManageCategories
+                    categories={categories}
+                    addCategory={handleAddCategory}
+                    deleteCategory={handleDeleteCategory}
+                    editCategory={handleEditCategory}
+                ></ManageCategories>
+            )}
         </div>
     );
 }

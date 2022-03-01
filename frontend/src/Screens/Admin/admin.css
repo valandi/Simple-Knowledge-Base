@@ -1,0 +1,23 @@
+.admin-subnav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    background-color: var(--accent-gray);
+    padding: 10px;
+}
+
+.admin-subnav button {
+    margin: 0px 5px;
+    border: none;
+    color: var(--accent-two);
+    border-radius: 5px;
+    padding: 10px 10px;
+    font-size: 15px;
+    box-shadow: 2px 2px 5px #888;
+}
+
+.admin-subnav .selected {
+    background-color: var(--accent-two);
+    color: white;
+    box-shadow: none;
+}

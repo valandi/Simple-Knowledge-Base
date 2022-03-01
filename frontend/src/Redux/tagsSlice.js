@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchTagsAsync, addTagAsync, editTagAsync, deleteTagAsync } from '../api/tagsApi';
+import { updateErrorMessage } from './errorSlice';
 
 const initialState = { 
     values: [],
@@ -16,9 +17,13 @@ export const fetchTags = createAsyncThunk(
 
 export const addTag = createAsyncThunk(
     'tags/addTag',
-    async (tag) => {
-      const response = await addTagAsync(tag);
-      return response.data;
+    async (tag, thunkApi) => {
+        try {
+            const response = await addTagAsync(tag);
+            return response.data;
+        } catch(e) {
+            return thunkApi.rejectWithValue(e);
+        }
     }
 )
 
@@ -42,30 +47,32 @@ const tagSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-          .addCase(fetchTags.fulfilled, (state, action) => {
-              state.status = 'idle';
-              console.log(action);
-              state.values = action.payload;
-          })
-          .addCase(addTag.fulfilled, (state, action) => {
-              state.status = 'idle';
-              let newTag = action.payload;
-              state.values = [...state.values, newTag];
-          })
-          .addCase(deleteTag.fulfilled, (state, action) => {
-              let currArr = [...state.values];
-              if (action.payload == 0) {
-                  currArr.shift();
-              } else {
-                  currArr.splice(action.payload, 1);
-              }
-              state.values = currArr;
-          })
-          .addCase(editTag.fulfilled, (state, action) => {
-              let currArr = [...state.values];
-              currArr[action.payload.index] = action.payload.tag;
-              state.values = currArr;
-          })
+            .addCase(fetchTags.fulfilled, (state, action) => {
+                state.status = 'idle';
+                state.values = action.payload;
+            })
+            .addCase(addTag.fulfilled, (state, action) => {
+                state.status = 'idle';
+                let newTag = action.payload;
+                state.values = [...state.values, newTag];
+            })
+            .addCase(addTag.rejected, (state, action) => {
+                console.log("reject");
+            })
+            .addCase(deleteTag.fulfilled, (state, action) => {
+                let currArr = [...state.values];
+                if (action.payload == 0) {
+                    currArr.shift();
+                } else {
+                    currArr.splice(action.payload, 1);
+                }
+                state.values = currArr;
+            })
+            .addCase(editTag.fulfilled, (state, action) => {
+                let currArr = [...state.values];
+                currArr[action.payload.index] = action.payload.tag;
+                state.values = currArr;
+            })
     }
   })
   

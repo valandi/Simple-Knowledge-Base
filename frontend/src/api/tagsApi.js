@@ -14,6 +14,7 @@ export async function addTagAsync(tag) {
         body: JSON.stringify(tag),
     });
     const res = await req.json();
+    if (res.error) throw res;
     return res;
 }
 

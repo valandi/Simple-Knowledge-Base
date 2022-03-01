@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./manageTags.css"
 
 function ManageTags(props) {
     const [newTagName, setNewTag] = useState("");
@@ -32,25 +33,30 @@ function ManageTags(props) {
     }
 
     return (
-        <div>
-            <input value={newTagName} placeholder="Create New Tag" onChange={(e) => setNewTag(e.target.value)}/>
-            <button onClick={handleSave}>Save New Tag</button>
-            {props.tags && props.tags.map((tag, index) => {
-                return (
-                    <div key={index}>
-                        {index != editingIndex && <p>{tag.name}</p>}
-                        {index == editingIndex && (
+        <div className="manage-items-container">
+            <input className="create-new" value={newTagName} placeholder="Create New Tag" onChange={(e) => setNewTag(e.target.value)}/>
+            <button className="main-button" onClick={handleSave}>Save</button>
+            <div className="options-container">
+                {props.tags && props.tags.map((tag, index) => {
+                    return (
+                        <div key={index} className="option">
+                            {index != editingIndex && <label>{tag.name}</label>}
+                            {index == editingIndex && (
+                                <div>
+                                    <input value={editingValue} onChange={(e) => setEditingValue(e.target.value)}/>
+                                    <button onClick={handleSaveEdits}>Save Edits</button>
+                                    <button onClick={() => {setEditingIndex(undefined); setEditingValue(undefined)}}>Cancel</button>
+                                </div>
+                            )}
                             <div>
-                                <input value={editingValue} onChange={(e) => setEditingValue(e.target.value)}/>
-                                <button onClick={handleSaveEdits}>Save Edits</button>
-                                <button onClick={() => {setEditingIndex(undefined); setEditingValue(undefined)}}>Cancel</button>
+                                {index != editingIndex && <button onClick={() => handleEditClick(tag.name, index)}>Edit</button>}
+                                {index != editingIndex && <button onClick={() => handleDelete(tag._id, index)}>Delete</button>}
                             </div>
-                        )}
-                        {index != editingIndex && <button onClick={() => handleEditClick(tag.name, index)}>Edit</button>}
-                        {index != editingIndex && <button onClick={() => handleDelete(tag._id, index)}>Delete</button>}
-                    </div>
-                )
-            })}
+                            
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     );
 }

@@ -48,7 +48,6 @@ export async function searchArticlesAsync(query) {
         body: JSON.stringify(query),
     })
     const res = await req.json();
-    console.log(res.data);
     return res.data;
 }
 

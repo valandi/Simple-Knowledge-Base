@@ -14,6 +14,7 @@ export async function addCategoryAsync(category) {
         body: JSON.stringify(category),
     });
     const res = await req.json();
+    if (res.error) throw res;
     return res;
 }
 

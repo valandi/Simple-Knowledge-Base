@@ -36,7 +36,7 @@ function CreateArticle() {
     }
 
     return (
-        <div>
+        <div style={{marginTop: "20px"}}>
             <EditArticle
                 article={newArticle}
                 categories={categories}
