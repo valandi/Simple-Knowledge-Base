@@ -97,5 +97,4 @@ module.exports.searchArticles = async function(req, res) {
             msg: "Error Searching Articles"
         });
     }
-    
 }

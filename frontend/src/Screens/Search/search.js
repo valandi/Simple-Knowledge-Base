@@ -83,6 +83,10 @@ function Search() {
                     onValueChange={handleTagChange}
                     initialValue={searchQuery.tags}
                 ></MultiValueSelector>
+                <div style={{marginBottom: "20px"}}>
+                    <label>Search ZD</label> <input type="checkbox" />
+                    <label>Search Trello</label> <input type="checkbox" />
+                </div>
                 <div style={{textAlign: "center"}}>
                     <button className="secondary-button" onClick={() => dispatch(clearSearchQuery())}>Clear</button>
                     <button className="main-button" onClick={() => handleSearchArticles()}>Search</button>

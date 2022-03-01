@@ -1,6 +1,7 @@
 const ArticleController = require('./Controllers/ArticleController');
 const TagController = require ('./Controllers/TagController');
 const CategoryController = require('./Controllers/CategoryController');
+const SearchController = require('./Controllers/SearchController');
 
 module.exports = function(app, express) {
     let router = express.Router();
@@ -23,4 +24,6 @@ module.exports = function(app, express) {
     app.get('/api/getCategory/:id', CategoryController.getCategory);
     app.put('/api/editCategory', CategoryController.editCategory);
     app.delete('/api/deleteCategory/:id', CategoryController.deleteCategory);
+
+    app.post('/api/search', SearchController.searchAll);
 }
