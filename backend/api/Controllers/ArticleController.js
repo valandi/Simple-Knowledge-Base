@@ -85,7 +85,7 @@ module.exports.searchArticles = async function(req, res) {
             query['category'] = mongoose.Types.ObjectId(req.body.category._id);
         }
         if (req.body.text && req.body.text.length > 0) {
-            query['$text'] = {"$search": req.body.text};
+            query['markdown'] = { "$regex": req.body.text, "$options": "i" };
         }
         let articles = await Article.find(query).populate(['tags', 'category']);
         res.status(200).send({data: articles});
