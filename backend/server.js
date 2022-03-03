@@ -1,10 +1,10 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors'); 
 var mongoose = require('mongoose'); 
 const app = express(); 
 const port = 5005;
+require('dotenv').config()
 
 let whitelist = ['http://localhost:3000'];
 

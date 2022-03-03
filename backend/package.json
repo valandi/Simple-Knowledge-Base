@@ -18,6 +18,8 @@
     "esm": "^3.2.25",
     "express": "^4.17.3",
     "mocha": "^9.2.1",
-    "mongoose": "^6.2.3"
+    "dotenv": "^16.0.0",
+    "mongoose": "^6.2.3",
+    "node-fetch": "^2.6.1"
   }
 }
