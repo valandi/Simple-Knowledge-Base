@@ -5,6 +5,7 @@ export default function SearchResults(props) {
     const [currentTab, setCurrentTab] = useState("articles");
     return (
         <div>
+            {console.log(props.searchResults)}
             <div className="admin-subnav">
                 <button className={currentTab == 'articles' ? "selected" : ""} onClick={() => setCurrentTab('articles')}>Articles</button>
                 <button className={currentTab == 'zendesk' ? "selected" : ""}onClick={() => setCurrentTab('zendesk')}>Zendesk Tickets</button>

@@ -8,21 +8,21 @@ import {
     fetchTags,
 } from "../../Redux/tagsSlice";
 import {
-    searchArticles,
+    generalSearch,
     updateSearchQuery,
     clearSearchQuery,
     toggleShowResults
-} from '../../Redux/articlesSlice';
+} from '../../Redux/searchSlice';
 import SearchResults from "../../Components/SearchResults/searchResults";
 import SingleValueSelector from "../../Components/SingleValueSelector/singleValueSelector";
 import MultiValueSelector from "../../Components/MultiValueSelector/multiValueSelector";
 
 function Search() {
-    const showResults = useSelector((state) => state.articles.showResults);
-    const searchResults = useSelector((state) => state.articles.articleSearchResults)
-    const searchQuery = useSelector((state) => state.articles.searchQuery)
-    const categories = useSelector((state) => state.categories.values)
-    const tags = useSelector((state) => state.tags.values)
+    const showResults = useSelector((state) => state.search.showResults);
+    const searchResults = useSelector((state) => state.search.articleResults);
+    const searchQuery = useSelector((state) => state.search.searchQuery);
+    const categories = useSelector((state) => state.categories.values);
+    const tags = useSelector((state) => state.tags.values);
     const dispatch = useDispatch()
 
     useEffect(async () => {
@@ -49,7 +49,7 @@ function Search() {
     }
 
     const handleSearchArticles = () => {
-        dispatch(searchArticles(searchQuery));
+        dispatch(generalSearch());
         dispatch(toggleShowResults(true));
     }
 
@@ -58,7 +58,7 @@ function Search() {
     }
 
     const handleRefresh = () => {
-        dispatch(searchArticles(searchQuery));
+        dispatch(generalSearch());
     }
 
     return (

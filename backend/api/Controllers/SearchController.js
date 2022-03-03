@@ -8,6 +8,7 @@ const zendeskClient = zendesk.createClient({
     token: process.env.ZD_TOKEN,
     remoteUri: process.env.ZD_URI
 })
+const zendeskTicketUrl = "https://applitools.zendesk.com/agent/tickets/";
 const trelloKey = process.env.TRELLO_KEY;
 const trelloToken = process.env.TRELLO_TOKEN;
 
@@ -25,15 +26,24 @@ const trelloToken = process.env.TRELLO_TOKEN;
 
 module.exports.searchAll = async function(req, res) {
     try {
-        let searchJobs = [];
-        searchJobs.push(searchArticles(req.body.searchQuery));
-        if (req.body.isZendesk) searchJobs.push(searchZendesk(req.body.searchQuery));
+        let promises = [];
+        promises.push(searchArticles(req.body.searchQuery));
+        if (req.body.isZendesk) promises.push(searchZendesk(req.body.searchQuery));
         // if (req.body.isTrello) searchJobs.push(searchTrello(req.body.searchQuery));
 
-        const searchResults = await Promise.all(searchJobs);
-        console.log(searchResults);
-        res.status(200).send({});
+        const searches = await Promise.all(promises);
+        const results = {
+            articles: searches[0],
+            tickets: req.body.isZendesk ? searches[1] : undefined,
+            // trellos: 
+            //     req.body.isZendesk && req.body.isTrello ? searches[2] : 
+            //         req.body.isTrello ? searches[1] : [],
+        }
+
+        res.status(200).send({data: results});
     } catch(e) {
+        console.log("SearchController.searchAll")
+        console.log(e);
         res.status(400).send({
             error: true,
             msg: "Error Searching"
@@ -42,31 +52,38 @@ module.exports.searchAll = async function(req, res) {
 }
 
 const searchArticles = async function(query) {
-    query = {};
-    if (req.body.tags && req.body.tags.length > 0) {
-        query['tags'] = {"$in": req.body.tags.map((tag) => mongoose.Types.ObjectId(tag._id))}
+    let mongoQuery = {};
+    if (query.tags && query.tags.length > 0) {
+        mongoQuery['tags'] = {"$in": query.tags.map((tag) => mongoose.Types.ObjectId(tag._id))}
     }
-    if (req.body.category && req.body.category._id) {
-        query['category'] = mongoose.Types.ObjectId(req.body.category._id);
+    if (query.category && query.category._id) {
+        mongoQuery['category'] = mongoose.Types.ObjectId(query.category._id);
     }
-    if (req.body.text && req.body.text.length > 0) {
-        query['$text'] = {"$search": req.body.text};
+    if (query.text && query.text.length > 0) {
+        mongoQuery['$text'] = {"$search": query.text};
     }
-    let articles = await Article.find(query).populate(['tags', 'category']);
+    let articles = await Article.find(mongoQuery).populate(['tags', 'category']);
     return articles;
 }
 
 const searchZendesk = async function(query) {
-    let zendeskQueryString = "type: ticket ";
+    let zendeskQueryString = "type:ticket ";
     if (query.text && query.text.length > 0) {
         zendeskQueryString += query.text + " ";
     }
     if (query.tags && query.tags.length > 0) {
-        query.tags.foreach((tag) => {
+        zendeskQueryString += "description:"
+        query.tags.forEach((tag) => {
             zendeskQueryString += tag.name + " ";
         })
     }
-    console.log(zendeskQueryString);
-    
-    console.log(zendeskClient.search);
+    zendeskQueryString += "order_by:created_at sort:desc";
+    let tix = await zendeskClient.search.query(zendeskQueryString);
+    // console.log(tix);
+    const urls = tix.map((ticket) => {
+        return {id: ticket.id, url: zendeskTicketUrl + ticket.id};
+    })
+    console.log(urls);
+    // console.log(zendeskClient.search);
+    return urls;
 }
