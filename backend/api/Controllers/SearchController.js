@@ -1,13 +1,7 @@
 const mongoose = require('mongoose');
+const fetch = require('node-fetch');
 const Article = require('../Models/Article');
-const zendesk = require('node-zendesk');
-const ArticleController = require('./ArticleController');
-
-const zendeskClient = zendesk.createClient({
-    username: process.env.ZD_USERNAME,
-    token: process.env.ZD_TOKEN,
-    remoteUri: process.env.ZD_URI
-})
+const zendeskAuthToken = Buffer.from(process.env.ZD_USERNAME + "/token:" + process.env.ZD_TOKEN).toString('base64');
 const zendeskTicketUrl = "https://applitools.zendesk.com/agent/tickets/";
 const trelloKey = process.env.TRELLO_KEY;
 const trelloToken = process.env.TRELLO_TOKEN;
@@ -29,15 +23,15 @@ module.exports.searchAll = async function(req, res) {
         let promises = [];
         promises.push(searchArticles(req.body.searchQuery));
         if (req.body.isZendesk) promises.push(searchZendesk(req.body.searchQuery));
-        // if (req.body.isTrello) searchJobs.push(searchTrello(req.body.searchQuery));
-
+        if (req.body.isTrello) promises.push(searchTrello(req.body.searchQuery));
         const searches = await Promise.all(promises);
+
         const results = {
             articles: searches[0],
             tickets: req.body.isZendesk ? searches[1] : undefined,
-            // trellos: 
-            //     req.body.isZendesk && req.body.isTrello ? searches[2] : 
-            //         req.body.isTrello ? searches[1] : [],
+            trellos: 
+                (req.body.isZendesk && req.body.isTrello) ? searches[2] : 
+                    req.body.isTrello ? searches[1] : undefined,
         }
 
         res.status(200).send({data: results});
@@ -68,22 +62,66 @@ const searchArticles = async function(query) {
 
 const searchZendesk = async function(query) {
     let zendeskQueryString = "type:ticket ";
+    let queryEdited = false;
     if (query.text && query.text.length > 0) {
         zendeskQueryString += query.text + " ";
+        queryEdited = true;
     }
     if (query.tags && query.tags.length > 0) {
         zendeskQueryString += "description:"
         query.tags.forEach((tag) => {
             zendeskQueryString += tag.name + " ";
         })
+        queryEdited = true;
     }
+    if (!queryEdited) return [];
     zendeskQueryString += "order_by:created_at sort:desc";
-    let tix = await zendeskClient.search.query(zendeskQueryString);
-    // console.log(tix);
-    const urls = tix.map((ticket) => {
-        return {id: ticket.id, url: zendeskTicketUrl + ticket.id};
+    zendeskQueryString = encodeURIComponent(zendeskQueryString);
+    let url = process.env.ZD_URI + "/search.json?query=" + zendeskQueryString + "&per_page=50";
+    const request = await fetch(url, {
+        method: "get",
+        headers: {'Authorization': 'Basic ' + zendeskAuthToken}
     })
-    console.log(urls);
-    // console.log(zendeskClient.search);
-    return urls;
+    const results = (await request.json()).results;
+    const tickets = results.map((ticket) => {
+        return {id: ticket.id, url: zendeskTicketUrl + ticket.id, subject: ticket.subject};
+    })
+    return tickets;
+}
+
+const searchTrello = async function(query) {
+    let trelloUrl = "https://api.trello.com/1/search?query=";
+    let trelloQueryString = "";
+    let queryEdited = false;
+
+    if (query.text && query.text.length > 0) {
+        trelloQueryString += query.text + " ";
+        queryEdited = true;
+    }
+    if (query.tags && query.tags.length > 0) {
+        query.tags.forEach((tag) => {
+            trelloQueryString += tag.name + " ";
+        })
+        queryEdited = true;
+    }
+    if (queryEdited) {
+        //remove trailing whitespace
+        trelloQueryString = trelloQueryString.slice(0, -1);
+        trelloQueryString = encodeURIComponent(trelloQueryString);
+        trelloUrl += trelloQueryString 
+        + "&modelTypes=cards"
+        + "&cards_limit=50"
+        + "&key=" + trelloKey 
+        + "&token=" + trelloToken;
+
+        let request = await fetch(trelloUrl);
+        let response = await request.json();
+
+        const cards = response.cards.map((card) => {
+            return {url: card.shortUrl, title: card.name}
+        })
+        return cards;
+    } else {
+        return [];
+    }
 }
