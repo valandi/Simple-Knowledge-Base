@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const Article = require('../Models/Article');
-const zendeskAuthToken = Buffer.from(process.env.ZD_USERNAME + "/token:" + process.env.ZD_TOKEN).toString('base64');
-const zendeskTicketUrl = "https://applitools.zendesk.com/agent/tickets/";
+const { makeZDRequest, zendeskTicketUrl, zendeskApiURl, zendeskFieldMap } = require('../utils');
 const trelloKey = process.env.TRELLO_KEY;
 const trelloToken = process.env.TRELLO_TOKEN;
 
@@ -22,7 +21,7 @@ module.exports.searchAll = async function(req, res) {
     try {
         let promises = [];
         promises.push(searchArticles(req.body.searchQuery));
-        if (req.body.isZendesk) promises.push(searchZendesk(req.body.searchQuery));
+        if (req.body.isZendesk) promises.push(searchZendesk(req.body.searchQuery, req.body.zendeskQuery));
         if (req.body.isTrello) promises.push(searchTrello(req.body.searchQuery));
         const searches = await Promise.all(promises);
 
@@ -60,9 +59,11 @@ const searchArticles = async function(query) {
     return articles;
 }
 
-const searchZendesk = async function(query) {
+const searchZendesk = async function(query, zendeskQuery) {
+    console.log(zendeskQuery);
     let zendeskQueryString = "type:ticket order_by:created_at sort:desc ";
     let queryEdited = false;
+
     if (query.text && query.text.length > 0) {
         zendeskQueryString += query.text + " ";
         queryEdited = true;
@@ -75,19 +76,25 @@ const searchZendesk = async function(query) {
         queryEdited = true;
     }
     if (!queryEdited) return [];
+    if (zendeskQuery.sdks) {
+        zendeskQueryString += "custom_field_" + zendeskFieldMap['SDK'] + ":" + zendeskQuery.sdks + " ";
+    }
+    if (zendeskQuery.grid) {
+        zendeskQueryString += "custom_field_" + zendeskFieldMap['Grid_Provider'] + ":" + zendeskQuery.grid + " ";
+    }
+    if (zendeskQuery.topic) {
+        zendeskQueryString += "custom_field_" + zendeskFieldMap['Topic'] + ":" + zendeskQuery.topic + " ";
+    }
+    console.log(zendeskQueryString);
     zendeskQueryString = encodeURIComponent(zendeskQueryString);
-    let url = process.env.ZD_URI 
+    let url = zendeskApiURl
     + "/search.json?query=" 
     + zendeskQueryString 
     + "&per_page=50"
     + "&include=highlights";
-    const request = await fetch(url, {
-        method: "get",
-        headers: {'Authorization': 'Basic ' + zendeskAuthToken}
-    })
-    const results = (await request.json()).results;
-    console.log(results[0]);
-    const tickets = results.map((ticket) => {
+
+    const req = await makeZDRequest(url);
+    const tickets = req.results.map((ticket) => {
         return {id: ticket.id, url: zendeskTicketUrl + ticket.id, subject: ticket.subject};
     })
     return tickets;
@@ -108,6 +115,7 @@ const searchTrello = async function(query) {
         })
         queryEdited = true;
     }
+
     if (queryEdited) {
         //remove trailing whitespace
         trelloQueryString = trelloQueryString.slice(0, -1);
@@ -124,8 +132,46 @@ const searchTrello = async function(query) {
         const cards = response.cards.map((card) => {
             return {url: card.shortUrl, title: card.name}
         })
+        console.log(cards);
         return cards;
     } else {
         return [];
     }
+}
+
+module.exports.getZDOptions = async function(req, res) {
+    try {
+        let sdkOptionsUrl = zendeskApiURl + "/ticket_fields/" + zendeskFieldMap['SDK'] + "/options";
+        let gpOptionsUrl = zendeskApiURl + "/ticket_fields/" + zendeskFieldMap['Grid_Provider'] + "/options";
+        let topicOptionsUrl = zendeskApiURl + "/ticket_fields/" + zendeskFieldMap['Topic'] + "/options";
+        let promises = [];
+        promises.push(getOptionsRequest(sdkOptionsUrl));
+        promises.push(getOptionsRequest(gpOptionsUrl));
+        promises.push(getOptionsRequest(topicOptionsUrl));
+        const options = await Promise.all(promises);
+        res.status(200).send({
+            data: {
+                sdks: options[0],
+                grids: options[1],
+                topics: options[2],
+            }
+        })
+    } catch(e) {
+        console.log("SearchController.getZDOptions");
+        console.log(e);
+        res.status(400).send({
+            error: true,
+            msg: "Error Getting Zendesk Options"
+        })
+    }
+    
+}
+
+async function getOptionsRequest(url) {
+    const req = await makeZDRequest(url);
+    let rawOptions = req.custom_field_options;
+    const options = rawOptions.map((option) => {
+        return option.name;
+    });
+    return options;
 }

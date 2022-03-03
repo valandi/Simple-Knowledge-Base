@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { generalSearchAsync } from '../api/searchApi';
+import { fetchZDOptionsAsync, generalSearchAsync } from '../api/searchApi';
 
 /* 
 searchQuery: {
@@ -8,6 +8,11 @@ searchQuery: {
     tags,
     isZendesk,
     isTrello,
+    zendeskQuery: {
+        sdkTag,
+        gridProviderTag,
+        TopicTag,
+    }
 }
 */
 
@@ -19,19 +24,31 @@ const initialState = {
     isZendesk: false,
     isTrello: false,
     searchQuery: {text: ""},
+    zendeskQuery: {},
+    zendeskSearchOptions: {},
+    didFetchOptions: false,
 }
 
 export const generalSearch = createAsyncThunk(
     'search/generalSearch',
     async (data, thunkAPI) => {
-        const { searchQuery, isZendesk, isTrello } = thunkAPI.getState()['search'];
+        const { searchQuery, isZendesk, isTrello, zendeskQuery } = thunkAPI.getState()['search'];
         const body = {
             searchQuery,
             isZendesk,
             isTrello,
+            zendeskQuery
         };
         const response = await generalSearchAsync(body);
         return response.data;
+    }
+)
+
+export const fetchZDOptions = createAsyncThunk(
+    'search/fetchZDOptions',
+    async (data, thunkAPI) => {
+        const response = await fetchZDOptionsAsync();
+        return response.data; 
     }
 )
 
@@ -46,6 +63,10 @@ const searchSlice = createSlice({
             state.searchQuery = {text: ""};
             state.isTrello = false;
             state.isZendesk = false;
+            state.zendeskQuery = {};
+        },
+        updateZendeskQuery: (state, action) => {
+            state.zendeskQuery = action.payload;
         },
         toggleShowResults: (state, action) => {
             state.showResults = action.payload;
@@ -75,8 +96,12 @@ const searchSlice = createSlice({
                     state.trelloResults = [];
                 }
             })
+            .addCase(fetchZDOptions.fulfilled, (state, action) => {
+                state.zendeskSearchOptions = action.payload;
+                state.didFetchOptions = true;
+            })
     },
 })
 
-export const {updateSearchQuery, clearSearchQuery, toggleShowResults, toggleZendesk, toggleTrello } = searchSlice.actions;
+export const {updateSearchQuery, clearSearchQuery, toggleShowResults, toggleZendesk, toggleTrello, updateZendeskQuery } = searchSlice.actions;
 export default searchSlice.reducer;

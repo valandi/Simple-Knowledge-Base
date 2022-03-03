@@ -7,8 +7,10 @@ export default function SingleValueSelector(props) {
 
     const setInitialValue = function() {
         let index;
-        if (props.initialValue)
+        if (props.initialValue && props.displayField)
             index = props.options.findIndex((option) => option[props.displayField] == props.initialValue[props.displayField]);
+        else if (props.initialValue && !props.displayField) 
+            index = props.options.findIndex((option) => option == props.initialValue);
         else
             index = "";
         setCurrentValue(index);
@@ -34,7 +36,7 @@ export default function SingleValueSelector(props) {
             <select value={currentValue} onChange={(e) => handleSelection(e.target.value)}>
                 <option value=""></option>
                 {props.options && props.options.map((option, index) => {
-                    return <option key={index} value={index}>{option[props.displayField]}</option>
+                    return <option key={index} value={index}>{props.displayField ? option[props.displayField] : option}</option>
                 })}
             </select>
         </div>

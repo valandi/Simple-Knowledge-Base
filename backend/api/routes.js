@@ -26,4 +26,5 @@ module.exports = function(app, express) {
     app.delete('/api/deleteCategory/:id', CategoryController.deleteCategory);
 
     app.post('/api/search', SearchController.searchAll);
+    app.get('/api/getZdOptions', SearchController.getZDOptions);
 }

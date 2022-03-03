@@ -27,6 +27,7 @@ export default function SearchResults(props) {
                 </div>
             )}
             {currentTab == 'trello' && (
+                
                 <div style={{width: "70%", margin: "20px auto"}}>
                     <TrelloResults
                         trellos={props.trellos}
