@@ -11,7 +11,9 @@ import {
     generalSearch,
     updateSearchQuery,
     clearSearchQuery,
-    toggleShowResults
+    toggleShowResults,
+    toggleZendesk,
+    toggleTrello,
 } from '../../Redux/searchSlice';
 import SearchResults from "../../Components/SearchResults/searchResults";
 import SingleValueSelector from "../../Components/SingleValueSelector/singleValueSelector";
@@ -19,7 +21,11 @@ import MultiValueSelector from "../../Components/MultiValueSelector/multiValueSe
 
 function Search() {
     const showResults = useSelector((state) => state.search.showResults);
-    const searchResults = useSelector((state) => state.search.articleResults);
+    const isZendesk = useSelector((state) => state.search.isZendesk);
+    const isTrello = useSelector((state) => state.search.isTrello);
+    const articleResults = useSelector((state) => state.search.articleResults);
+    const zendeskResults = useSelector((state) => state.search.zendeskResults);
+    const trelloResults = useSelector((state) => state.search.zendeskResults);
     const searchQuery = useSelector((state) => state.search.searchQuery);
     const categories = useSelector((state) => state.categories.values);
     const tags = useSelector((state) => state.tags.values);
@@ -48,8 +54,9 @@ function Search() {
         dispatch(updateSearchQuery(q));
     }
 
-    const handleSearchArticles = () => {
-        dispatch(generalSearch());
+    const handleSearchArticles = async () => {
+        // TODO: Trigger loading spinner
+        await dispatch(generalSearch());
         dispatch(toggleShowResults(true));
     }
 
@@ -67,7 +74,7 @@ function Search() {
             <div className="query">
                 <div>
                     <label>Contains Text: </label>
-                    <input value={searchQuery.text} onChange={(e) => handleTextChange(e.target.value)}/>
+                    <input value={searchQuery.text} onChange={(e) => handleTextChange(e.target.value)} />
                 </div>
                 <SingleValueSelector
                     options={categories}
@@ -84,8 +91,8 @@ function Search() {
                     initialValue={searchQuery.tags}
                 ></MultiValueSelector>
                 <div style={{marginBottom: "20px"}}>
-                    <label>Search ZD</label> <input type="checkbox" />
-                    <label>Search Trello</label> <input type="checkbox" />
+                    <label>Search ZD</label> <input type="checkbox" checked={isZendesk} onChange={() => dispatch(toggleZendesk())}/>
+                    <label>Search Trello</label> <input type="checkbox" checked={isTrello} onChange={() => dispatch(toggleTrello())}/>
                 </div>
                 <div style={{textAlign: "center"}}>
                     <button className="secondary-button" onClick={() => dispatch(clearSearchQuery())}>Clear</button>
@@ -96,7 +103,9 @@ function Search() {
         {showResults && (
             <div>
                 <SearchResults
-                    searchResults={searchResults}
+                    searchResults={articleResults}
+                    tickets={zendeskResults}
+                    trellos={trelloResults}
                 ></SearchResults>
                 <button className="secondary-button" onClick={() => handleToggleShowResults(false)}>Back</button>
                 <button className="main-button" onClick={() => handleRefresh()}>Refresh Results</button>

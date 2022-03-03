@@ -61,7 +61,7 @@ const searchArticles = async function(query) {
 }
 
 const searchZendesk = async function(query) {
-    let zendeskQueryString = "type:ticket ";
+    let zendeskQueryString = "type:ticket order_by:created_at sort:desc ";
     let queryEdited = false;
     if (query.text && query.text.length > 0) {
         zendeskQueryString += query.text + " ";
@@ -75,14 +75,18 @@ const searchZendesk = async function(query) {
         queryEdited = true;
     }
     if (!queryEdited) return [];
-    zendeskQueryString += "order_by:created_at sort:desc";
     zendeskQueryString = encodeURIComponent(zendeskQueryString);
-    let url = process.env.ZD_URI + "/search.json?query=" + zendeskQueryString + "&per_page=50";
+    let url = process.env.ZD_URI 
+    + "/search.json?query=" 
+    + zendeskQueryString 
+    + "&per_page=50"
+    + "&include=highlights";
     const request = await fetch(url, {
         method: "get",
         headers: {'Authorization': 'Basic ' + zendeskAuthToken}
     })
     const results = (await request.json()).results;
+    console.log(results[0]);
     const tickets = results.map((ticket) => {
         return {id: ticket.id, url: zendeskTicketUrl + ticket.id, subject: ticket.subject};
     })

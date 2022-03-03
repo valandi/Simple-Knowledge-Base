@@ -16,7 +16,7 @@ const initialState = {
     zendeskResults: [],
     trelloResults: [],
     showResults: false,
-    isZendesk: true,
+    isZendesk: false,
     isTrello: false,
     searchQuery: {text: ""},
 }
@@ -44,24 +44,39 @@ const searchSlice = createSlice({
         },
         clearSearchQuery: (state) => {
             state.searchQuery = {text: ""};
+            state.isTrello = false;
+            state.isZendesk = false;
         },
         toggleShowResults: (state, action) => {
             state.showResults = action.payload;
+        },
+        toggleZendesk: (state, action) => {
+            let curr = state.isZendesk;
+            state.isZendesk = !curr;
+        },
+        toggleTrello: (state, action) => {
+            let curr = state.isTrello;
+            state.isTrello = !curr;
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(generalSearch.fulfilled, (state, action) => {
+                console.log(action.payload);
                 state.articleResults = action.payload.articles;
                 if (state.isZendesk) {
                     state.zendeskResults = action.payload.tickets;
+                } else {
+                    state.zendeskResults = [];
                 }
                 if (state.isTrello) {
                     state.trelloResults = action.payload.trellos;
+                } else {
+                    state.trelloResults = [];
                 }
             })
     },
 })
 
-export const {updateSearchQuery, clearSearchQuery, toggleShowResults } = searchSlice.actions;
+export const {updateSearchQuery, clearSearchQuery, toggleShowResults, toggleZendesk, toggleTrello } = searchSlice.actions;
 export default searchSlice.reducer;

@@ -6,8 +6,8 @@ import "./ListArticles.css";
 function ListArticles(props) {
     
     return (
-        <div>
-            <table className="list-articles-table">
+        <div className="results-container">
+            <table className="search-results-table">
                 <thead>
                     <tr>
                         <th>Article</th>
